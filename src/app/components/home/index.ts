@@ -1,0 +1,10 @@
+export { HeroSection } from './HeroSection';
+export { FeaturesSection } from './FeaturesSection';
+export { SpecialOffersSection } from './SpecialOffersSection';
+export { TopRatedSection } from './TopRatedSection';
+export { CTASection } from './CTASection';
+export { ScrollingBanner } from './ScrollingBanner';
+export { BrandShowcase } from './BrandShowcase';
+export { StatsCounter } from './StatsCounter';
+export { TestimonialsCarousel } from './TestimonialsCarousel';
+export { AboutSection } from './AboutSection';
