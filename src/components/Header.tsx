@@ -244,7 +244,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
 
               {/* Mobile User Actions */}
               <div className="flex flex-col gap-2 pt-4 border-t">
-                {isAuthenticated && user && (
+                {/* {isAuthenticated && user && (
                   <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg">
                     <span className="text-sm font-semibold text-gray-700">{user.name}</span>
                     <div className="flex items-center gap-2">
@@ -252,7 +252,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                       <span className="text-sm font-semibold text-amber-700">{user.points} Points</span>
                     </div>
                   </div>
-                )}
+                )} */}
 
                 <div className="grid grid-cols-2 gap-2">
                   <Button
@@ -278,6 +278,22 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                     Cart ({getCartCount()})
                   </Button>
                 </div>
+
+              {/* Profile button for mobile */}
+              {isAuthenticated && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    onNavigate('profile');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="justify-center"
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  My Profile
+                </Button>
+              )}
+ 
 
                 {isAuthenticated ? (
                   <>

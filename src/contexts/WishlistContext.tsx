@@ -117,7 +117,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
     setIsLoading(true);
     try {
-      const serverWishlist = await apiService.getWishlist(user.id);
+      const serverWishlist = await apiService.getWishlist(user.user_id);
       console.log('Server wishlist response:', serverWishlist);
       
       if (serverWishlist && serverWishlist.length > 0) {
@@ -153,7 +153,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setIsLoading(true);
     try {
-      const response = await apiService.addToWishlist(user.id, productId);
+      const response = await apiService.addToWishlist(user.user_id, productId);
 
       if (response && response.status === true && response.code === 200) {
         // Refresh wishlist from server to get latest data
@@ -182,7 +182,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setIsLoading(true);
     try {
-      const response = await apiService.removeFromWishlist(user.id, productId);
+      const response = await apiService.removeFromWishlist(user.user_id, productId);
 
       if (response && response.status === true && response.code === 200) {
         // Update local state

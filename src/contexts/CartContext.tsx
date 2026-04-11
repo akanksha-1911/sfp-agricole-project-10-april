@@ -165,7 +165,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     setIsLoading(true);
     try {
-      const serverCart = await apiService.getCart(user.id);
+      const serverCart = await apiService.getCart(user.user_id);
       
       if (serverCart && serverCart.length > 0) {
         // Transform server cart items to local format
@@ -215,7 +215,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const totalPrice = product.price * quantity;
       
       const response = await apiService.addToCart({
-        user_id: user.id,
+        user_id: user.user_id,
         product_id: product.id,
         qty: quantity,
         price: product.price,
@@ -259,7 +259,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setIsLoading(true);
     try {
-      const response = await apiService.removeFromCart(user.id, productId);
+      const response = await apiService.removeFromCart(user.user_id, productId);
 
       if (response && response.status === true && response.code === 200) {
         setCart(prevCart => prevCart.filter(item => item.product.id !== productId));
@@ -296,7 +296,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const totalPrice = cartItem.product.price * quantity;
 
       const response = await apiService.updateCart({
-        user_id: user.id,
+        user_id: user.user_id,
         product_id: productId,
         qty: quantity,
         price: cartItem.product.price,

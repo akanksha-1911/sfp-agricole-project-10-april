@@ -1,66 +1,187 @@
-import React from 'react';
-import { Star } from 'lucide-react';
-import { Card } from '../ui/card';
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { Product } from '../../../types';
+// import React, { useEffect, useState } from 'react';
+// import { Clock } from 'lucide-react';
+// import { Product } from '../../../types';
+// import { apiService } from '../../../services/apiService';
+// import { ProductCard } from '../shared/ProductCard';
 
-interface TopRatedSectionProps {
-  products: Product[];
+// interface SpecialOffersSectionProps {
+//   onNavigate: (page: string) => void;
+//   onAddToCart: (product: Product) => void;
+// }
+
+// export const TopRatedSection: React.FC<SpecialOffersSectionProps> = ({
+//   onNavigate,
+//   onAddToCart
+// }) => {
+//   const [products, setProducts] = useState<Product[]>([]);
+//   const [isLoading, setIsLoading] = useState(true);
+
+//   useEffect(() => {
+//     fetchFeaturedProducts();
+//   }, []);
+
+//   const fetchFeaturedProducts = async () => {
+//     setIsLoading(true);
+//     try {
+//       const featuredProducts = await apiService.getFeaturedProducts();
+//       setProducts(featuredProducts);
+//     } catch (error) {
+//       console.error('Error fetching featured products:', error);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   if (isLoading) {
+//     return (
+//       <section className="py-16 bg-white">
+//         <div className="container mx-auto px-4">
+//           <div className="text-center mb-12">
+//             <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-full mb-4">
+//               <Clock className="w-4 h-4 animate-pulse" />
+//               <span className="text-sm font-semibold">Loading Offers...</span>
+//             </div>
+//             <h2 className="text-3xl font-bold text-gray-900 mb-2">Special Offers</h2>
+//             <p className="text-gray-600">Grab these exclusive deals before they're gone!</p>
+//           </div>
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+//             {[1, 2, 3, 4].map((i) => (
+//               <div key={i} className="animate-pulse">
+//                 <div className="bg-gray-200 h-64 rounded-lg"></div>
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       </section>
+//     );
+//   }
+
+//   if (products.length === 0) {
+//     return null;
+//   }
+
+//   return (
+//     <section className="py-16 bg-white">
+//       <div className="container mx-auto px-4">
+//         <div className="text-center mb-12">
+//           <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-full mb-4">
+//             <Clock className="w-4 h-4" />
+//             <span className="text-sm font-semibold">Limited Time Offers</span>
+//           </div>
+//           <h2 className="text-3xl font-bold text-gray-900 mb-2">Special Offers</h2>
+//           <p className="text-gray-600">Grab these exclusive deals before they're gone!</p>
+//         </div>
+
+//         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+//           {products.map((product, idx) => (
+//             <ProductCard
+//               key={product.id}
+//               product={product}
+//               onNavigate={onNavigate}
+//               onAddToCart={onAddToCart}
+//               delay={idx * 0.1}
+//             />
+//           ))}
+//         </div>
+//       </div>
+//     </section>
+//   );
+// };
+
+
+import React, { useEffect, useState } from 'react';
+import { Clock } from 'lucide-react';
+import { Product } from '../../../types';
+import { apiService } from '../../../services/apiService';
+import { ProductCard } from '../shared/ProductCard';
+import { useWishlist } from '../../../contexts/WishlistContext';
+
+interface SpecialOffersSectionProps {
   onNavigate: (page: string) => void;
   onAddToCart: (product: Product) => void;
 }
 
-export const TopRatedSection: React.FC<TopRatedSectionProps> = ({
-  products,
+export const TopRatedSection: React.FC<SpecialOffersSectionProps> = ({
   onNavigate,
   onAddToCart
 }) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+
+  useEffect(() => {
+    fetchFeaturedProducts();
+  }, []);
+
+  const fetchFeaturedProducts = async () => {
+    setIsLoading(true);
+    try {
+      const featuredProducts = await apiService.getFeaturedProducts();
+      setProducts(featuredProducts);
+    } catch (error) {
+      console.error('Error fetching featured products:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleWishlistToggle = async (product: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (isInWishlist(product.id)) {
+      await removeFromWishlist(product.id);
+    } else {
+      await addToWishlist(product.id);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 bg-amber-100 text-amber-700 px-4 py-2 rounded-full mb-4">
+              <Clock className="w-4 h-4 animate-pulse" />
+              <span className="text-sm font-semibold">Loading Offers...</span>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Special Offers</h2>
+            <p className="text-gray-600">Grab these exclusive deals before they're gone!</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-gray-200 h-64 rounded-lg"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (products.length === 0) {
+    return null;
+  }
+
   return (
-    <section className="py-16 bg-white">
+    <section className="py-14  bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Top Rated Products</h2>
-          <p className="text-gray-600">Highly recommended by our customers</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Featured Products</h2>
+          <p className="text-gray-600">Grab these exclusive products before they're gone!</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <Card
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((product, idx) => (
+            <ProductCard
               key={product.id}
-              className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-2 hover:border-indigo-200"
-              onClick={() => onNavigate(`product/${product.id}`)}
-            >
-              <div className="relative overflow-hidden bg-gray-100">
-                <ImageWithFallback
-                  src={product.images[0]}
-                  alt={product.name}
-                  className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <Badge className="absolute top-3 left-3 bg-indigo-600">{product.brand}</Badge>
-              </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-sm mb-2 line-clamp-2 min-h-[40px]">
-                  {product.name}
-                </h3>
-                <div className="flex items-center gap-1 mb-2">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm font-semibold">{product.rating}</span>
-                  <span className="text-xs text-gray-500">({product.reviews.length})</span>
-                </div>
-                <Button
-                  size="sm"
-                  className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAddToCart(product);
-                  }}
-                >
-                  Add to Cart
-                </Button>
-              </div>
-            </Card>
+              product={product}
+              onNavigate={onNavigate}
+              onAddToCart={onAddToCart}
+              onWishlistToggle={(e) => handleWishlistToggle(product, e)}
+              isWishlisted={isInWishlist(product.id)}
+              delay={idx * 0.1}
+            />
           ))}
         </div>
       </div>

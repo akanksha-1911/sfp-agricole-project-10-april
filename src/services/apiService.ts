@@ -1,5 +1,6 @@
 // apiService.ts
 import { API_BASE_URL, API_ENDPOINTS } from '../config/api';
+import { Product } from '../types';
 
 export interface BannerSlideData {
   banner_id: string;
@@ -50,7 +51,7 @@ export const apiService = {
       }
     },
 
-    async getProducts() {
+async getProducts() {
   try {
     const url = `${API_BASE_URL}/api/get_products`;
     console.log('Fetching products from:', url);
@@ -879,6 +880,115 @@ async updateUserProfile(profileData: {
   }
 },
 
+
+  async getFeaturedProducts(): Promise<Product[]> {
+    try {
+      const url = `${API_BASE_URL}/api/get_featured_products`;
+      console.log('Fetching featured products from:', url);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        if (data.status && data.code === 200 && data.data) {
+          // Transform API response to match Product type
+          const products: Product[] = data.data.map((item: any) => ({
+            id: item.product_id,
+            name: item.product_name,
+            price: parseFloat(item.product_price),
+            mrp: parseFloat(item.product_mrp),
+            category: item.product_category_name,
+            brand: item.product_brand_name,
+            company: item.product_company_name,
+            images: [item.product_image],
+            discount: parseFloat(item.product_mrp) > parseFloat(item.product_price)
+              ? Math.round(((parseFloat(item.product_mrp) - parseFloat(item.product_price)) / parseFloat(item.product_mrp)) * 100)
+              : 0,
+            region: '',
+            stock: 100,
+            tags: [],
+            description: '',
+            isActive: true,
+            isSpecialOffer: true
+          }));
+          return products;
+        }
+        throw new Error(data.message || 'Failed to fetch featured products');
+      } else {
+        console.warn('Non-JSON response for featured products');
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching featured products:', error);
+      return [];
+    }
+  },
+
+
+// Get Latest Products
+async getLatestProducts(): Promise<Product[]> {
+  try {
+    const url = `${API_BASE_URL}/api/get_latest_products`;
+    console.log('Fetching latest products from:', url);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      if (data.status && data.code === 200 && data.data) {
+        // Transform API response to match Product type
+        const products: Product[] = data.data.map((item: any) => ({
+          id: item.product_id,
+          name: item.product_name,
+          price: parseFloat(item.product_price),
+          mrp: parseFloat(item.product_mrp),
+          category: item.product_category_name,
+          brand: item.product_brand_name,
+          company: item.product_company_name,
+          images: [item.product_image],
+          discount: parseFloat(item.product_mrp) > parseFloat(item.product_price)
+            ? Math.round(((parseFloat(item.product_mrp) - parseFloat(item.product_price)) / parseFloat(item.product_mrp)) * 100)
+            : 0,
+          region: '',
+          stock: 100,
+          tags: [],
+          description: '',
+          isActive: true,
+          isSpecialOffer: false
+        }));
+        return products;
+      }
+      throw new Error(data.message || 'Failed to fetch latest products');
+    } else {
+      console.warn('Non-JSON response for latest products');
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching latest products:', error);
+    return [];
+  }
+},
+
   // Get Countries
   async getCountries() {
     try {
@@ -944,6 +1054,67 @@ async updateUserProfile(profileData: {
     } catch (error) {
       console.error('Error fetching states:', error);
       return [];
+    }
+  },
+
+  // Place Order / Checkout
+  async placeOrder(orderData: {
+    user_id: string;
+    shipping_address: {
+      full_name: string;
+      email: string;
+      phone: string;
+      address: string;
+      city: string;
+      state: string;
+      country: string;
+      pincode: string;
+    };
+    order_items: Array<{
+      product_id: string;
+      quantity: number;
+      price: number;
+      total_price: number;
+    }>;
+    payment_method: string;
+    total_amount: number;
+  }) {
+    try {
+      console.log('Sending place order request:', orderData);
+      
+      const response = await fetch(`${API_BASE_URL}/api/checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+      
+      console.log('Place order response status:', response.status);
+      
+      // Check if response is OK
+      if (!response.ok) {
+        const text = await response.text();
+        console.error('Place order failed with status:', response.status);
+        console.error('Response text:', text.substring(0, 500));
+        throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      }
+      
+      // Parse response
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await response.json();
+        console.log('Place order response data:', data);
+        return data;
+      } else {
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        throw new Error('Server returned unexpected response format');
+      }
+    } catch (error) {
+      console.error('Place order error:', error);
+      throw error;
     }
   },
 

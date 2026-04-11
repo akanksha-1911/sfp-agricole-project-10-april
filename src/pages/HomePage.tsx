@@ -8,7 +8,9 @@ import {
   FeaturesSection,
   //BrandShowcase,
   StatsCounter,
-  TestimonialsCarousel
+  TestimonialsCarousel,
+  TopRatedSection,
+  LatestProductsSection
 } from '../app/components/home';
 
 interface HomePageProps {
@@ -30,8 +32,20 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       {/* Features */}
       <FeaturesSection />
 
+      {/* Featured Products */}
+      <TopRatedSection 
+        onNavigate={onNavigate}
+        onAddToCart={addToCart}
+      />
+
       {/* Stats Counter */}
       <StatsCounter />
+
+      {/* Latest Product */}
+       <LatestProductsSection
+        onNavigate={onNavigate}
+        onAddToCart={addToCart}
+      />
 
       {/* Testimonials */}
       <TestimonialsCarousel />

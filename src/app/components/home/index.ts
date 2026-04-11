@@ -1,6 +1,6 @@
 export { HeroSection } from './HeroSection';
 export { FeaturesSection } from './FeaturesSection';
-export { SpecialOffersSection } from './SpecialOffersSection';
+export { LatestProductsSection } from './LatestProductsSection';
 export { TopRatedSection } from './TopRatedSection';
 export { CTASection } from './CTASection';
 export { ScrollingBanner } from './ScrollingBanner';

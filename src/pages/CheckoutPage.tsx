@@ -32,6 +32,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
   const { user, updateUser } = useAuth();
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const [shippingInfo, setShippingInfo] = useState({
     fullName: '',
@@ -94,60 +95,105 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate required fields
     if (!shippingInfo.fullName || !shippingInfo.phone || !shippingInfo.address || 
         !shippingInfo.city || !shippingInfo.state || !shippingInfo.pincode) {
       toast.error('Please fill all shipping details');
       return;
     }
 
-    // Calculate points earned (1 point per ₹100)
-    const pointsEarned = Math.floor(getCartTotal() / 100);
-    
-    // Prepare checkout request body with current shipping info
-    const checkoutData = {
-      user_id: user?.id || localStorage.getItem('user_id'),
-      order_date: new Date().toISOString(),
-      shipping_details: {
-        full_name: shippingInfo.fullName,
-        email: shippingInfo.email,
-        phone: shippingInfo.phone,
-        address: shippingInfo.address,
-        city: shippingInfo.city,
-        state: shippingInfo.state,
-        country: shippingInfo.country,
-        pincode: shippingInfo.pincode
-      },
-      order_items: cart.map(item => ({
+    // Validate email format if provided
+    if (shippingInfo.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shippingInfo.email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    // Validate phone number (10 digits)
+    if (!/^\d{10}$/.test(shippingInfo.phone)) {
+      toast.error('Please enter a valid 10-digit phone number');
+      return;
+    }
+
+    // Validate pincode (6 digits)
+    if (!/^\d{6}$/.test(shippingInfo.pincode)) {
+      toast.error('Please enter a valid 6-digit pincode');
+      return;
+    }
+
+    setIsPlacingOrder(true);
+
+    try {
+      const userId = user?.id || localStorage.getItem('user_id');
+      
+      if (!userId) {
+        toast.error('User not found. Please login again.');
+        return;
+      }
+
+      // Prepare order items
+      const orderItems = cart.map(item => ({
         product_id: item.product.id,
-        product_name: item.product.name,
         quantity: item.quantity,
         price: item.product.price,
         total_price: item.product.price * item.quantity
-      })),
-      subtotal: getCartTotal(),
-      tax: Math.round(getCartTotal() * 0.18),
-      total: getCartTotal() + Math.round(getCartTotal() * 0.18),
-      points_earned: pointsEarned
-    };
+      }));
 
-    console.log('Checkout request body:', checkoutData);
+      // Calculate total amount (without tax as per your requirement)
+      const totalAmount = getCartTotal();
 
-    // Here you would make your API call to place the order
-    // Example: await apiService.placeOrder(checkoutData);
-    
-    if (user) {
-      const updatedUser = {
-        ...user,
-        points: (user.points || 0) + pointsEarned
+      // Prepare checkout request body
+      const checkoutData = {
+        user_id: userId,
+        shipping_address: {
+          full_name: shippingInfo.fullName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+          address: shippingInfo.address,
+          city: shippingInfo.city,
+          state: shippingInfo.state,
+          country: shippingInfo.country || 'India',
+          pincode: shippingInfo.pincode
+        },
+        order_items: orderItems,
+        payment_method: "COD",
+        total_amount: totalAmount
       };
-      updateUser(updatedUser);
-    }
 
-    setOrderPlaced(true);
-    clearCart();
-    toast.success(`Order placed successfully! You earned ${pointsEarned} points!`, {
-      duration: 1000
-    });
+      console.log('Sending checkout request:', checkoutData);
+
+      // Call the checkout API
+      const response = await apiService.placeOrder(checkoutData);
+
+      // Check if order was successful
+      if (response.status && response.code === 200) {
+        // Calculate points earned (1 point per ₹100)
+        const pointsEarned = Math.floor(getCartTotal() / 100);
+        
+        // Update user points if logged in
+        if (user) {
+          const updatedUser = {
+            ...user,
+            points: (user.points || 0) + pointsEarned
+          };
+          updateUser(updatedUser);
+        }
+
+        // Clear cart and show success
+        clearCart();
+        setOrderPlaced(true);
+        toast.success(response.message || `Order placed successfully! You earned ${pointsEarned} points!`, {
+          duration: 3000
+        });
+      } else {
+        // Handle API error response
+        toast.error(response.message || 'Failed to place order. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error placing order:', error);
+      toast.error('Failed to place order. Please check your connection and try again.');
+    } finally {
+      setIsPlacingOrder(false);
+    }
   };
 
   if (orderPlaced) {
@@ -183,8 +229,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
   }
 
   const subtotal = getCartTotal();
-  //const tax = Math.round(subtotal * 0.18);
-  //const total = subtotal + tax;
   const total = subtotal;
 
   if (isLoadingProfile) {
@@ -220,6 +264,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                       value={shippingInfo.fullName}
                       onChange={(e) => handleInputChange('fullName', e.target.value)}
                       required
+                      placeholder="Enter your full name"
                     />
                   </div>
                   <div>
@@ -229,15 +274,19 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                       type="email"
                       value={shippingInfo.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
+                      placeholder="your@email.com"
                     />
                   </div>
                   <div>
                     <Label htmlFor="phone">Phone Number *</Label>
                     <Input
                       id="phone"
+                      type="tel"
                       value={shippingInfo.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
                       required
+                      placeholder="9876543210"
+                      maxLength={10}
                     />
                   </div>
                   <div className="md:col-span-2">
@@ -248,6 +297,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                       onChange={(e) => handleInputChange('address', e.target.value)}
                       required
                       rows={3}
+                      placeholder="Street address, apartment, etc."
                     />
                   </div>
                   <div>
@@ -257,6 +307,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                       value={shippingInfo.city}
                       onChange={(e) => handleInputChange('city', e.target.value)}
                       required
+                      placeholder="Enter city"
                     />
                   </div>
                   <div>
@@ -266,6 +317,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                       value={shippingInfo.state}
                       onChange={(e) => handleInputChange('state', e.target.value)}
                       required
+                      placeholder="Enter state"
                     />
                   </div>
                   <div>
@@ -274,15 +326,19 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                       id="country"
                       value={shippingInfo.country}
                       onChange={(e) => handleInputChange('country', e.target.value)}
+                      placeholder="India"
                     />
                   </div>
                   <div>
                     <Label htmlFor="pincode">Pincode *</Label>
                     <Input
                       id="pincode"
+                      type="text"
                       value={shippingInfo.pincode}
                       onChange={(e) => handleInputChange('pincode', e.target.value)}
                       required
+                      placeholder="422001"
+                      maxLength={6}
                     />
                   </div>
                 </div>
@@ -326,10 +382,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-semibold text-green-600">Free</span>
                   </div>
-                  {/* <div className="flex justify-between">
-                    <span className="text-gray-600">Tax (18% GST)</span>
-                    <span className="font-semibold">₹{tax}</span>
-                  </div> */}
                   <div className="border-t pt-3">
                     <div className="flex justify-between">
                       <span className="font-bold text-lg">Total</span>
@@ -338,20 +390,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
                   </div>
                 </div>
 
-                {/* {user && (
-                  <div className="mb-6 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                    <p className="text-sm text-amber-800">
-                      You'll earn <span className="font-bold">{Math.floor(subtotal / 100)} points</span> with this order!
-                    </p>
-                  </div>
-                )} */}
-
                 <Button
                   type="submit"
                   className="w-full bg-gradient-to-r from-green-600 to-emerald-500"
                   size="lg"
+                  disabled={isPlacingOrder}
                 >
-                  Place Order
+                  {isPlacingOrder ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Placing Order...</span>
+                    </div>
+                  ) : (
+                    'Place Order'
+                  )}
                 </Button>
               </Card>
             </div>
