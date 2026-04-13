@@ -127,7 +127,7 @@ export const TestimonialsCarousel: React.FC = () => {
                 
                 <div className="relative z-10">
                   <div className="flex items-center gap-1 mb-6 justify-center">
-                    {[...Array(5)].map((_, i) => (
+                    {/* {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
                         className={`w-5 h-5 ${
@@ -136,7 +136,7 @@ export const TestimonialsCarousel: React.FC = () => {
                             : 'text-gray-300'
                         }`}
                       />
-                    ))}
+                    ))} */}
                   </div>
 
                   <p className="text-xl md:text-2xl text-gray-700 text-center mb-8 italic">

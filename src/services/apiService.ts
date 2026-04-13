@@ -389,6 +389,42 @@ async getProducts() {
       }
     },
 
+    // Add this method to your apiService object in apiService.ts
+
+// Get CMS content
+async getCMSContent(): Promise<any> {
+  try {
+    const url = `${API_BASE_URL}/api/get_cms`;
+    console.log('Fetching CMS content from:', url);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      if (data.status && data.code === 200 && data.data) {
+        return data.data;
+      }
+      throw new Error(data.message || 'Failed to fetch CMS content');
+    } else {
+      console.warn('Non-JSON response for CMS content');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching CMS content:', error);
+    return null;
+  }
+},
+
     // Get cart
     async getCart(userId: string) {
       try {

@@ -20,6 +20,36 @@ interface PageProps {
 }
 
 export const AboutPage: React.FC<PageProps> = ({ onNavigate }) => {
+  const [cmsContent, setCmsContent] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCMSContent = async () => {
+      try {
+        setIsLoading(true);
+        const data = await apiService.getCMSContent();
+        if (data && data.about) {
+          setCmsContent(data.about);
+        }
+      } catch (error) {
+        console.error('Error fetching about page content:', error);
+        toast.error('Failed to load about page content');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCMSContent();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="relative bg-gradient-to-r from-green-600 to-emerald-500 text-white py-20">
@@ -29,7 +59,9 @@ export const AboutPage: React.FC<PageProps> = ({ onNavigate }) => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center"
           >
-            <h1 className="text-5xl font-bold mb-4">About TractorParts</h1>
+            <h1 className="text-5xl font-bold mb-4">
+              {cmsContent?.head || 'About TractorParts'}
+            </h1>
             <p className="text-xl opacity-90">Your trusted partner in agricultural excellence</p>
           </motion.div>
         </div>
@@ -42,26 +74,38 @@ export const AboutPage: React.FC<PageProps> = ({ onNavigate }) => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-bold mb-4">Our Story</h2>
-            <p className="text-gray-700 mb-4">
-              Founded in 2010, TractorParts has been serving the agricultural community with premium quality tractor accessories and parts. We understand the importance of reliable equipment in farming operations.
-            </p>
-            <p className="text-gray-700 mb-4">
-              With over 13 years of experience, we've built strong relationships with leading brands like SFP, SPADE, and ORIGINAL to bring you the best products at competitive prices.
-            </p>
-            <p className="text-gray-700">
-              Our mission is to support farmers with quality products, expert advice, and exceptional customer service.
-            </p>
+            <h2 className="text-3xl font-bold mb-4">
+              {cmsContent?.title || 'Our Story'}
+            </h2>
+            {cmsContent?.details ? (
+              <div 
+                className="text-gray-700 space-y-4"
+                dangerouslySetInnerHTML={{ __html: cmsContent.details }}
+              />
+            ) : (
+              <>
+                <p className="text-gray-700 mb-4">
+                  Founded in 2010, TractorParts has been serving the agricultural community with premium quality tractor accessories and parts. We understand the importance of reliable equipment in farming operations.
+                </p>
+                <p className="text-gray-700 mb-4">
+                  With over 13 years of experience, we've built strong relationships with leading brands like SFP, SPADE, and ORIGINAL to bring you the best products at competitive prices.
+                </p>
+                <p className="text-gray-700">
+                  Our mission is to support farmers with quality products, expert advice, and exceptional customer service.
+                </p>
+              </>
+            )}
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
+            className="flex justify-center"
           >
             <ImageWithFallback
-              src="https://images.unsplash.com/photo-1709715357510-b687304cee3a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
-              alt="Our Team"
-              className="rounded-2xl shadow-2xl"
+              src={cmsContent?.image || "https://images.unsplash.com/photo-1709715357510-b687304cee3a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"}
+              alt={cmsContent?.title || "Our Team"}
+              className="rounded-2xl shadow-2xl w-full max-h-[400px] object-contain"
             />
           </motion.div>
         </div>
@@ -439,57 +483,176 @@ export const FAQPage: React.FC<PageProps> = () => {
   );
 };
 
-// Legal pages with placeholder content
-export const TermsPage: React.FC = () => (
-  <div className="min-h-screen bg-gray-50 py-16">
-    <div className="container mx-auto px-4 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8">Terms & Conditions</h1>
-      <Card className="p-8 prose prose-green max-w-none">
-        <h2>1. Acceptance of Terms</h2>
-        <p>By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement.</p>
-        
-        <h2>2. Use License</h2>
-        <p>Permission is granted to temporarily download one copy of the materials on TractorParts website for personal, non-commercial transitory viewing only.</p>
-        
-        <h2>3. Disclaimer</h2>
-        <p>The materials on TractorParts website are provided on an 'as is' basis. TractorParts makes no warranties, expressed or implied.</p>
-      </Card>
-    </div>
-  </div>
-);
+export const TermsPage: React.FC = () => {
+  const [cmsContent, setCmsContent] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-export const PrivacyPage: React.FC = () => (
-  <div className="min-h-screen bg-gray-50 py-16">
-    <div className="container mx-auto px-4 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
-      <Card className="p-8 prose prose-green max-w-none">
-        <h2>Information Collection</h2>
-        <p>We collect information from you when you register on our site, place an order, or subscribe to our newsletter.</p>
-        
-        <h2>Information Use</h2>
-        <p>We use the information we collect to process transactions, send periodic emails, and improve customer service.</p>
-        
-        <h2>Data Protection</h2>
-        <p>We implement a variety of security measures to maintain the safety of your personal information.</p>
-      </Card>
-    </div>
-  </div>
-);
+  useEffect(() => {
+    const fetchCMSContent = async () => {
+      try {
+        setIsLoading(true);
+        const data = await apiService.getCMSContent();
+        if (data && data.terms_conditions) {
+          setCmsContent(data.terms_conditions);
+        }
+      } catch (error) {
+        console.error('Error fetching terms:', error);
+        toast.error('Failed to load terms & conditions');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-export const RefundPage: React.FC = () => (
-  <div className="min-h-screen bg-gray-50 py-16">
-    <div className="container mx-auto px-4 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8">Refund Policy</h1>
-      <Card className="p-8 prose prose-green max-w-none">
-        <h2>30-Day Return Policy</h2>
-        <p>We offer a 30-day return policy on all products purchased from TractorParts.</p>
-        
-        <h2>Eligibility</h2>
-        <p>Products must be in original condition with all packaging and accessories. Damaged or used items may not be eligible for return.</p>
-        
-        <h2>Refund Process</h2>
-        <p>Refunds will be processed within 7-10 business days of receiving the returned item.</p>
-      </Card>
+    fetchCMSContent();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-16">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <h1 className="text-4xl font-bold mb-8">
+          {cmsContent?.head || 'Terms & Conditions'}
+        </h1>
+        <Card className="p-8 prose prose-green max-w-none">
+          {cmsContent?.details ? (
+            <div dangerouslySetInnerHTML={{ __html: cmsContent.details }} />
+          ) : (
+            <>
+              <h2>1. Acceptance of Terms</h2>
+              <p>By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement.</p>
+              
+              <h2>2. Use License</h2>
+              <p>Permission is granted to temporarily download one copy of the materials on TractorParts website for personal, non-commercial transitory viewing only.</p>
+              
+              <h2>3. Disclaimer</h2>
+              <p>The materials on TractorParts website are provided on an 'as is' basis. TractorParts makes no warranties, expressed or implied.</p>
+            </>
+          )}
+        </Card>
+      </div>
     </div>
-  </div>
-);
+  );
+};
+
+export const PrivacyPage: React.FC = () => {
+  const [cmsContent, setCmsContent] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCMSContent = async () => {
+      try {
+        setIsLoading(true);
+        const data = await apiService.getCMSContent();
+        if (data && data.privacy_policy) {
+          setCmsContent(data.privacy_policy);
+        }
+      } catch (error) {
+        console.error('Error fetching privacy policy:', error);
+        toast.error('Failed to load privacy policy');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCMSContent();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-16">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <h1 className="text-4xl font-bold mb-8">
+          {cmsContent?.head || 'Privacy Policy'}
+        </h1>
+        <Card className="p-8 prose prose-green max-w-none">
+          {cmsContent?.details ? (
+            <div dangerouslySetInnerHTML={{ __html: cmsContent.details }} />
+          ) : (
+            <>
+              <h2>Information Collection</h2>
+              <p>We collect information from you when you register on our site, place an order, or subscribe to our newsletter.</p>
+              
+              <h2>Information Use</h2>
+              <p>We use the information we collect to process transactions, send periodic emails, and improve customer service.</p>
+              
+              <h2>Data Protection</h2>
+              <p>We implement a variety of security measures to maintain the safety of your personal information.</p>
+            </>
+          )}
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export const RefundPage: React.FC = () => {
+  const [cmsContent, setCmsContent] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCMSContent = async () => {
+      try {
+        setIsLoading(true);
+        const data = await apiService.getCMSContent();
+        if (data && data.refund_policy) {
+          setCmsContent(data.refund_policy);
+        }
+      } catch (error) {
+        console.error('Error fetching refund policy:', error);
+        toast.error('Failed to load refund policy');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCMSContent();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-16">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <h1 className="text-4xl font-bold mb-8">
+          {cmsContent?.head || 'Refund Policy'}
+        </h1>
+        <Card className="p-8 prose prose-green max-w-none">
+          {cmsContent?.details ? (
+            <div dangerouslySetInnerHTML={{ __html: cmsContent.details }} />
+          ) : (
+            <>
+              <h2>30-Day Return Policy</h2>
+              <p>We offer a 30-day return policy on all products purchased from TractorParts.</p>
+              
+              <h2>Eligibility</h2>
+              <p>Products must be in original condition with all packaging and accessories. Damaged or used items may not be eligible for return.</p>
+              
+              <h2>Refund Process</h2>
+              <p>Refunds will be processed within 7-10 business days of receiving the returned item.</p>
+            </>
+          )}
+        </Card>
+      </div>
+    </div>
+  );
+};
