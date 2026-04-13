@@ -123,7 +123,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onNavigate }) => {
     setIsPlacingOrder(true);
 
     try {
-      const userId = user?.id || localStorage.getItem('user_id');
+      const userId = user?.user_id || localStorage.getItem('user_id');
       
       if (!userId) {
         toast.error('User not found. Please login again.');

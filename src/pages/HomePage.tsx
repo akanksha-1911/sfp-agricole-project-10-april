@@ -6,7 +6,6 @@ import {
   ScrollingBanner,
   AboutSection,
   FeaturesSection,
-  //BrandShowcase,
   StatsCounter,
   TestimonialsCarousel,
   TopRatedSection,
@@ -26,7 +25,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       {/* Scrolling Banner */}
       <ScrollingBanner onNavigate={onNavigate} />
 	  
-	  {/* About */}
+	    {/* About */}
       <AboutSection />
 
       {/* Features */}
