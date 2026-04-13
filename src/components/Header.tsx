@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShoppingCart, Heart, User, Search, Menu, X, LogOut, UserCircle, Package, Award } from 'lucide-react';
+import { ShoppingCart, Heart, User, Search, Menu, X, LogOut, UserCircle, Package, Award, ClipboardList } from 'lucide-react';
 import logoImage from '../assets/dbb3a662c87a2a20de8c59dfa5e2eeba1ad617d7.png';
 import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
 
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-4">
-           
+
             <Button
               variant="ghost"
               size="icon"
@@ -98,73 +98,84 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
               )}
             </Button>
 
-                      
-              {isAuthenticated ? (
-                <div className="relative">
-                  <Button
-                    variant="ghost"
-                    onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2"
-                  >
-                    <UserCircle className="w-5 h-5" />
-                    <span className="text-sm">{user?.name}</span>
-                  </Button>
-                  
-                  <AnimatePresence>
-                    {showUserMenu && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-2"
+            {isAuthenticated ? (
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2"
+                >
+                  <UserCircle className="w-5 h-5" />
+                  <span className="text-sm">{user?.name}</span>
+                </Button>
+                
+                <AnimatePresence>
+                  {showUserMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-2"
+                    >
+                      {/* Profile button for all users */}
+                      <button
+                        onClick={() => {
+                          onNavigate('profile');
+                          setShowUserMenu(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                       >
-                        {/* Profile button for all users */}
+                        <User className="w-4 h-4" />
+                        My Profile
+                      </button>
+                      
+                      {/* My Orders button */}
+                      <button
+                        onClick={() => {
+                          onNavigate('enquiries');
+                          setShowUserMenu(false);
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <ClipboardList className="w-4 h-4" />
+                        My Enquiries
+                      </button>
+                      
+                      {/* Admin Panel only for admins */}
+                      {user?.isAdmin && (
                         <button
                           onClick={() => {
-                            onNavigate('profile');
+                            onNavigate('admin');
                             setShowUserMenu(false);
                           }}
                           className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                         >
-                          <User className="w-4 h-4" />
-                          My Profile
+                          <Package className="w-4 h-4" />
+                          Admin Panel
                         </button>
-                        
-                        {/* Admin Panel only for admins */}
-                        {user?.isAdmin && (
-                          <button
-                            onClick={() => {
-                              onNavigate('admin');
-                              setShowUserMenu(false);
-                            }}
-                            className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-                          >
-                            <Package className="w-4 h-4" />
-                            Admin Panel
-                          </button>
-                        )}
-                        
-                        <button
-                          onClick={() => {
-                            logout();
-                            setShowUserMenu(false);
-                            onNavigate('home');
-                          }}
-                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
-                        >
-                          <LogOut className="w-4 h-4" />
-                          Logout
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ) : (
-                <Button onClick={() => onNavigate('login')} className="bg-gradient-to-r from-indigo-600 to-indigo-500">
-                  <User className="w-4 h-4 mr-2" />
-                  Login
-                </Button>
-              )}
+                      )}
+                      
+                      <button
+                        onClick={() => {
+                          logout();
+                          setShowUserMenu(false);
+                          onNavigate('home');
+                        }}
+                        className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Button onClick={() => onNavigate('login')} className="bg-gradient-to-r from-indigo-600 to-indigo-500">
+                <User className="w-4 h-4 mr-2" />
+                Login
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -244,17 +255,22 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
 
               {/* Mobile User Actions */}
               <div className="flex flex-col gap-2 pt-4 border-t">
-                {/* {isAuthenticated && user && (
-                  <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg">
-                    <span className="text-sm font-semibold text-gray-700">{user.name}</span>
-                    <div className="flex items-center gap-2">
-                      <Award className="w-4 h-4 text-amber-600" />
-                      <span className="text-sm font-semibold text-amber-700">{user.points} Points</span>
-                    </div>
-                  </div>
-                )} */}
-
                 <div className="grid grid-cols-2 gap-2">
+                  {/* My Orders button for mobile */}
+                  {isAuthenticated && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        onNavigate('enquiries');
+                        setMobileMenuOpen(false);
+                      }}
+                      className="justify-start"
+                    >
+                      <ClipboardList className="w-4 h-4 mr-2" />
+                      My Orders
+                    </Button>
+                  )}
+                  
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -266,6 +282,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                     <Heart className="w-4 h-4 mr-2" />
                     Wishlist ({wishlist.length})
                   </Button>
+                  
                   <Button
                     variant="outline"
                     onClick={() => {
@@ -279,21 +296,20 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                   </Button>
                 </div>
 
-              {/* Profile button for mobile */}
-              {isAuthenticated && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    onNavigate('profile');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="justify-center"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  My Profile
-                </Button>
-              )}
- 
+                {/* Profile button for mobile */}
+                {isAuthenticated && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      onNavigate('profile');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="justify-center"
+                  >
+                    <User className="w-4 h-4 mr-2" />
+                    My Profile
+                  </Button>
+                )}
 
                 {isAuthenticated ? (
                   <>
@@ -305,7 +321,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                           setMobileMenuOpen(false);
                         }}
                       >
-                        <User className="w-4 h-4 mr-2" />
+                        <Package className="w-4 h-4 mr-2" />
                         Admin Panel
                       </Button>
                     )}

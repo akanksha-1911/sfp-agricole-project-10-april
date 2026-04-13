@@ -31,20 +31,24 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
       {/* Features */}
       <FeaturesSection />
 
-      {/* Featured Products */}
-      <TopRatedSection 
-        onNavigate={onNavigate}
-        onAddToCart={addToCart}
-      />
+        {/* Featured Products - Mobile Only */}
+      <div className="block md:hidden">
+        <TopRatedSection 
+          onNavigate={onNavigate}
+          onAddToCart={addToCart}
+        />
+      </div>
 
       {/* Stats Counter */}
       <StatsCounter />
 
-      {/* Latest Product */}
-       <LatestProductsSection
-        onNavigate={onNavigate}
-        onAddToCart={addToCart}
-      />
+        {/* Latest Product - Mobile Only */}
+      <div className="block md:hidden">
+        <LatestProductsSection
+          onNavigate={onNavigate}
+          onAddToCart={addToCart}
+        />
+      </div>
 
       {/* Testimonials */}
       <TestimonialsCarousel />

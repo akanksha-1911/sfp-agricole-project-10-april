@@ -1,4 +1,5 @@
 export interface Product {
+  rating: number;
   mrp: number;
   id: string;
   name: string;

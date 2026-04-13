@@ -389,7 +389,41 @@ async getProducts() {
       }
     },
 
-    // Add this method to your apiService object in apiService.ts
+ // Add this method to your apiService object in apiService.ts
+
+// Get Enquiries/Orders by User ID
+async getEnquiries(userId: string): Promise<any[]> {
+  try {
+    const url = `${API_BASE_URL}/api/get_enquiries?user_id=${userId}`;
+    console.log('Fetching enquiries from:', url);
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      const data = await response.json();
+      if (data.status && data.code === 200 && data.data) {
+        return data.data;
+      }
+      return [];
+    } else {
+      console.warn('Non-JSON response for enquiries');
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching enquiries:', error);
+    return [];
+  }
+},
 
 // Get CMS content
 async getCMSContent(): Promise<any> {

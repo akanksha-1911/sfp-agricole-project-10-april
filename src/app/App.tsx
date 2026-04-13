@@ -16,6 +16,7 @@ import { AuthPages } from '../pages/AuthPages';
 import { AboutPage, ContactPage, WishlistPage, FAQPage, TermsPage, PrivacyPage, RefundPage } from '../pages/OtherPages';
 import { AdminPanel } from '../pages/AdminPanel';
 import { ProfilePage } from '../pages/ProfilePage';
+import { EnquiriesPage } from '../pages/EnquiriesPage';
 
 // Main App Component
 export default function App() {
@@ -61,6 +62,8 @@ export default function App() {
         return <AuthPages onNavigate={navigate} initialTab={currentPage as 'login' | 'signup'} />;
       case 'about':
         return <AboutPage onNavigate={navigate} />;
+      case 'enquiries':
+        return <EnquiriesPage onNavigate={navigate} />;
       case 'contact':
         return <ContactPage onNavigate={navigate} />;
       case 'faq':
