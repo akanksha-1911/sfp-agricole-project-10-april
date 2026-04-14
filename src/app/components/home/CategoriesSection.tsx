@@ -81,16 +81,16 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({ onNavigate
             onClick={() => handleCategoryClick(category)}
             className="flex-shrink-0 flex flex-col items-center group"
           >
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center group-active:scale-95 transition-transform duration-200 shadow-sm">
+            <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center group-active:scale-95 transition-transform duration-200 shadow-sm">
               {category.category_image ? (
                 <img
                   src={category.category_image}
                   alt={category.category_name}
-                  className="w-12 h-12 object-contain rounded-full"
+                  className="w-full h-full object-cover"
                   loading="lazy"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
                   <span className="text-white text-xl font-bold">
                     {category.category_name.charAt(0).toUpperCase()}
                   </span>
