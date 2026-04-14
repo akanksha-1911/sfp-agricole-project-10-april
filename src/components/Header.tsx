@@ -69,7 +69,6 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
 
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-4">
-
             <Button
               variant="ghost"
               size="icon"
@@ -255,29 +254,30 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
 
               {/* Mobile User Actions */}
               <div className="flex flex-col gap-2 pt-4 border-t">
+                {/* My Enquiries - Full Row */}
+                {isAuthenticated && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      onNavigate('enquiries');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full justify-center border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                  >
+                    <ClipboardList className="w-4 h-4 mr-2" />
+                    My Enquiries
+                  </Button>
+                )}
+                
+                {/* Two Column Grid for Wishlist and Cart */}
                 <div className="grid grid-cols-2 gap-2">
-                  {/* My Orders button for mobile */}
-                  {isAuthenticated && (
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        onNavigate('enquiries');
-                        setMobileMenuOpen(false);
-                      }}
-                      className="justify-start"
-                    >
-                      <ClipboardList className="w-4 h-4 mr-2" />
-                      My Orders
-                    </Button>
-                  )}
-                  
                   <Button
                     variant="outline"
                     onClick={() => {
                       onNavigate('wishlist');
                       setMobileMenuOpen(false);
                     }}
-                    className="justify-start"
+                    className="justify-center"
                   >
                     <Heart className="w-4 h-4 mr-2" />
                     Wishlist ({wishlist.length})
@@ -289,7 +289,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                       onNavigate('cart');
                       setMobileMenuOpen(false);
                     }}
-                    className="justify-start"
+                    className="justify-center"
                   >
                     <ShoppingCart className="w-4 h-4 mr-2" />
                     Cart ({getCartCount()})
@@ -320,6 +320,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                           onNavigate('admin');
                           setMobileMenuOpen(false);
                         }}
+                        className="justify-center"
                       >
                         <Package className="w-4 h-4 mr-2" />
                         Admin Panel
@@ -332,7 +333,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                         setMobileMenuOpen(false);
                         onNavigate('home');
                       }}
-                      className="text-red-600 border-red-200"
+                      className="text-red-600 border-red-200 justify-center"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
                       Logout
@@ -344,7 +345,7 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                       onNavigate('login');
                       setMobileMenuOpen(false);
                     }}
-                    className="bg-gradient-to-r from-indigo-600 to-indigo-500"
+                    className="bg-gradient-to-r from-indigo-600 to-indigo-500 justify-center"
                   >
                     <User className="w-4 h-4 mr-2" />
                     Login
