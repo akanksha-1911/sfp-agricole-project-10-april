@@ -57,7 +57,7 @@
 // };
 
 
-
+// HomePage.tsx (updated)
 import React from 'react';
 import { useProducts } from '../contexts/ProductContext';
 import { useCart } from '../contexts/CartContext';
@@ -71,6 +71,7 @@ import {
   TopRatedSection,
   LatestProductsSection
 } from '../app/components/home';
+import { CategoriesSection } from '../app/components/home/CategoriesSection';
 
 interface HomePageProps {
   onNavigate: (page: string) => void;
@@ -80,13 +81,26 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   const { products } = useProducts();
   const { addToCart } = useCart();
 
+  const handleNavigate = (page: string, categoryId?: string) => {
+    if (categoryId) {
+      onNavigate(`${page}?category=${categoryId}`);
+    } else {
+      onNavigate(page);
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Scrolling Banner - Hidden on mobile */}
       <div className="hidden md:block">
         <ScrollingBanner onNavigate={onNavigate} />
       </div>
-	  
+      
+      {/* Categories Section - Mobile Only */}
+      <div className="block md:hidden">
+        <CategoriesSection onNavigate={handleNavigate} />
+      </div>
+      
       {/* About - Hidden on mobile */}
       <div className="hidden md:block">
         <AboutSection />
